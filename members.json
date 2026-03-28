@@ -1,0 +1,19 @@
+[
+  {
+    "name": "Officer Default",
+    "special_no": "1111",
+    "mobile": "9876543210",
+    "email": "user@example.com",
+    "dept_id": "DEPT_K_909",
+    "role": "admin"
+  },
+  {
+    "name": "mayankbhai",
+    "special_no": "453",
+    "mobile": "9876543211",
+    "email": "abc@gmail.com",
+    "dept_id": "DEPT_126",
+    "address": "katargam,surat",
+    "role": "user"
+  }
+]

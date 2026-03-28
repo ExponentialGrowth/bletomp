@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POLICE DATA HUB - Admin Dashboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #2E235C;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #e1e4e8;
+        }
+
+        .card h3 {
+            margin-top: 0;
+            color: #444;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: white;
+            transition: 0.2s;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: #2E235C;
+        }
+
+        .btn-primary:hover {
+            background: #1a1438;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background: #bd2130;
+        }
+
+        .btn-edit {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .btn-edit:hover {
+            background: #e0a800;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .form-group label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #2E235C;
+        }
+
+        input {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: #2E235C;
+            color: white;
+        }
+
+        tr:hover {
+            background: #f1f1f1;
+        }
+
+        .msg {
+            text-align: center;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+
+        .msg.success {
+            color: green;
+        }
+
+        .msg.error {
+            color: red;
+        }
+
+        .actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        #editFormContainer {
+            display: none;
+            margin-top: 20px;
+            border-top: 2px dashed #ccc;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>🚔 Officer Management Dashboard</h1>
+
+        <!-- ADD MEMBER FORM -->
+        <div class="card">
+            <h3>➕ Add New Officer</h3>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="add_name" placeholder="Enter Full Name">
+                </div>
+                <div class="form-group">
+                    <label>Special No (HRPN)</label>
+                    <input type="text" id="add_special" placeholder="Enter Unique ID">
+                </div>
+                <div class="form-group">
+                    <label>Mobile Number</label>
+                    <input type="tel" id="add_mobile" placeholder="10-digit Mobile">
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="add_email" placeholder="official@email.com">
+                </div>
+                <div class="form-group">
+                    <label>Department ID</label>
+                    <input type="text" id="add_dept" placeholder="e.g. DEPT-123">
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label>Station/Office Address</label>
+                    <input type="text" id="add_address" placeholder="Full Office Address">
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="addMember()">Add Member</button>
+            <div id="addMsg" class="msg"></div>
+        </div>
+
+        <!-- MEMBER LIST -->
+        <div class="card">
+            <h3>📋 Registered Officers</h3>
+            <table id="membersTable">
+                <thead>
+                    <tr>
+                        <th>Special No</th>
+                        <th>Name</th>
+                        <th>Mobile</th>
+                        <th>Email</th>
+                        <th>Dept ID</th>
+                        <th>Station</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Rows will be injected here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- EDIT MODAL (Inline) -->
+    <div id="editOverlay"
+        style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:none; justify-content:center; align-items:center;">
+        <div style="background:white; padding:30px; border-radius:8px; width:400px;">
+            <h3>✏️ Edit Officer</h3>
+            <input type="hidden" id="edit_original_special">
+            <div style="display:flex; flex-direction:column; gap:10px;">
+                <input type="text" id="edit_name" placeholder="Name">
+                <input type="text" id="edit_special" placeholder="Special No">
+                <input type="text" id="edit_mobile" placeholder="Mobile">
+                <input type="text" id="edit_email" placeholder="Email">
+                <input type="text" id="edit_dept" placeholder="Dept ID">
+                <input type="text" id="edit_address" placeholder="Station Address">
+            </div>
+            <div style="margin-top:20px; display:flex; justify-content:space-between;">
+                <button class="btn btn-danger" onclick="closeEdit()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveEdit()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '/api';
+
+        async function loadMembers() {
+            try {
+                const res = await fetch(`${API_URL}/members`);
+                const members = await res.json();
+                const tbody = document.querySelector('#membersTable tbody');
+                tbody.innerHTML = '';
+
+                members.forEach(m => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                    <td><b>${m.special_no}</b></td>
+                    <td>${m.name}</td>
+                    <td>${m.mobile}</td>
+                    <td>${m.email}</td>
+                    <td><span style="background:#eef; padding:2px 6px; border-radius:4px;">${m.dept_id}</span></td>
+                    <td>${m.address || ''}</td>
+                    <td class="actions">
+                        <button class="btn btn-edit" onclick='openEdit(${JSON.stringify(m)})'>Edit</button>
+                        <button class="btn btn-danger" onclick="deleteMember('${m.special_no}')">Delete</button>
+                    </td>
+                `;
+                    tbody.appendChild(tr);
+                });
+            } catch (e) {
+                console.error("Failed to load members", e);
+            }
+        }
+
+        async function addMember() {
+            const data = {
+                name: document.getElementById('add_name').value,
+                special_no: document.getElementById('add_special').value,
+                mobile: document.getElementById('add_mobile').value,
+                email: document.getElementById('add_email').value,
+                dept_id: document.getElementById('add_dept').value,
+                address: document.getElementById('add_address').value
+            };
+
+            const msgDiv = document.getElementById('addMsg');
+            try {
+                const res = await fetch(`${API_URL}/add-member`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await res.json();
+
+                if (res.ok) {
+                    msgDiv.innerHTML = '<span class="success">Member Added Successfully!</span>';
+                    document.querySelectorAll('#add_name, #add_special, #add_mobile, #add_email, #add_dept, #add_address').forEach(i => i.value = '');
+                    loadMembers();
+                } else {
+                    msgDiv.innerHTML = `<span class="error">${result.error}</span>`;
+                }
+            } catch (e) {
+                msgDiv.innerHTML = '<span class="error">Connection Failed</span>';
+            }
+        }
+
+        async function deleteMember(specialNo) {
+            if (!confirm(`Are you sure you want to delete Officer with Special No: ${specialNo}?`)) return;
+
+            try {
+                const res = await fetch(`${API_URL}/delete-member`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ special_no: specialNo })
+                });
+                if (res.ok) loadMembers();
+                else alert("Failed to delete");
+            } catch (e) { alert("Error deleting"); }
+        }
+
+        // Edit Logic
+        function openEdit(member) {
+            document.getElementById('edit_original_special').value = member.special_no;
+            document.getElementById('edit_name').value = member.name;
+            document.getElementById('edit_special').value = member.special_no;
+            document.getElementById('edit_mobile').value = member.mobile;
+            document.getElementById('edit_email').value = member.email;
+            document.getElementById('edit_dept').value = member.dept_id;
+            document.getElementById('edit_address').value = member.address || '';
+            document.getElementById('editOverlay').style.display = 'flex';
+        }
+
+        function closeEdit() {
+            document.getElementById('editOverlay').style.display = 'none';
+        }
+
+        async function saveEdit() {
+            const data = {
+                original_special_no: document.getElementById('edit_original_special').value,
+                name: document.getElementById('edit_name').value,
+                special_no: document.getElementById('edit_special').value,
+                mobile: document.getElementById('edit_mobile').value,
+                email: document.getElementById('edit_email').value,
+                dept_id: document.getElementById('edit_dept').value,
+                address: document.getElementById('edit_address').value
+            };
+
+            try {
+                const res = await fetch(`${API_URL}/update-member`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await res.json();
+
+                if (res.ok) {
+                    closeEdit();
+                    loadMembers();
+                } else {
+                    alert("Error: " + result.error);
+                }
+            } catch (e) {
+                alert("Connection Failed");
+            }
+        }
+
+        // Initial Load
+        loadMembers();
+    </script>
+
+</body>
+
+</html>
